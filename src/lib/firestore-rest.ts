@@ -2,13 +2,18 @@
 // No google-auth-library or firebase-admin needed - zero heavy deps
 import * as crypto from "crypto";
 
-const PROJECT_ID = "edm-fire-app";
+const PROJECT_ID = process.env.FIREBASE_PROJECT_ID || "edm-fire-app";
 const SCOPES = "https://www.googleapis.com/auth/datastore";
 
 // Service account from env
 const CLIENT_EMAIL = process.env.FIREBASE_CLIENT_EMAIL || "";
-const PRIVATE_KEY =
-  process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n") || "";
+const PRIVATE_KEY_RAW = process.env.FIREBASE_PRIVATE_KEY || "";
+
+// Fix newlines - handle both \\n (escaped) and actual newlines from Vercel
+const PRIVATE_KEY = PRIVATE_KEY_RAW
+  .replace(/\\n/g, "\n")
+  .replace(/-----BEGIN PRIVATE KEY-----/, "-----BEGIN PRIVATE KEY-----")
+  .replace(/-----END PRIVATE KEY-----/, "-----END PRIVATE KEY-----");
 
 // Cache token to avoid re-signing on every request
 let cachedToken: string | null = null;
@@ -16,6 +21,12 @@ let tokenExpiry = 0;
 
 // Create JWT and exchange for access token using Google OAuth2
 async function getAccessToken(): Promise<string> {
+  if (!CLIENT_EMAIL || !PRIVATE_KEY) {
+    throw new Error(
+      `Missing Firebase credentials: email=${CLIENT_EMAIL ? "set" : "MISSING"}, key=${PRIVATE_KEY ? "set" : "MISSING"}`
+    );
+  }
+
   // Reuse cached token if still valid (with 60s buffer)
   if (cachedToken && Date.now() < tokenExpiry - 60000) {
     return cachedToken;

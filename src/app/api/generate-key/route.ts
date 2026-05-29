@@ -48,8 +48,9 @@ export async function POST(req: NextRequest) {
     }
   } catch (error: unknown) {
     console.error("Key generation error:", error);
+    const message = error instanceof Error ? error.message : "Failed to generate key";
     return NextResponse.json(
-      { success: false, error: "Failed to generate key" },
+      { success: false, error: message },
       { status: 500 }
     );
   }
