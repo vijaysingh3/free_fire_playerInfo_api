@@ -145,20 +145,54 @@ export default function DocsPage() {
       <section className="mt-10">
         <h2 className="text-xl font-bold">Authentication</h2>
         <p className="mt-3 text-sm text-muted-foreground">
-          All requests require an API key passed via the{" "}
-          <code className="rounded bg-muted px-1.5 py-0.5 text-xs">
-            x-api-key
-          </code>{" "}
-          header. Get your free key from the{" "}
-          <a href="/pricing" className="text-orange-500 hover:underline">
-            Pricing page
-          </a>
-          .
+          There are two ways to access the API:
         </p>
-        <div className="mt-3 rounded-lg border border-border/40 bg-card/50 p-4">
-          <code className="text-sm">
-            x-api-key: YOUR_API_KEY
-          </code>
+
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <Card className="border-green-500/30 bg-green-500/5">
+            <CardHeader>
+              <CardTitle className="text-sm font-medium text-green-400">
+                Free Tier (No Signup)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-xs text-muted-foreground">
+              <p>
+                Use the <code className="rounded bg-muted px-1 py-0.5">/api/player</code> endpoint
+                for instant access. No API key needed — just send your request and get
+                50 free requests/month automatically. Visit the{" "}
+                <a href="/lab" className="text-orange-500 hover:underline">Lab page</a> to test instantly.
+              </p>
+              <pre className="mt-2 overflow-x-auto rounded bg-background/80 p-2 text-xs">
+                <code>{`POST /api/player
+{
+  "uid": "2732697922",
+  "region": "ind"
+}`}</code>
+              </pre>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/40 bg-card/50">
+            <CardHeader>
+              <CardTitle className="text-sm font-medium">
+                API Key (Higher Limits)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-xs text-muted-foreground">
+              <p>
+                For production use and higher limits, use the direct Cloud Function
+                endpoint with an API key via the{" "}
+                <code className="rounded bg-muted px-1 py-0.5">x-api-key</code> header.
+                Get your key from the{" "}
+                <a href="/pricing" className="text-orange-500 hover:underline">Pricing page</a>.
+              </p>
+              <pre className="mt-2 overflow-x-auto rounded bg-background/80 p-2 text-xs">
+                <code>{`POST ${API_BASE_URL}
+x-api-key: ff_free_xxxxx
+{"uid": "...", "region": "ind"}`}</code>
+              </pre>
+            </CardContent>
+          </Card>
         </div>
       </section>
 

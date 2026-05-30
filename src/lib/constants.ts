@@ -31,6 +31,15 @@ export interface PlanConfig {
   buttonVariant: "default" | "outline";
 }
 
+// Free tier limits (internal)
+export const FREE_PLAN_LIMITS = {
+  requestsPerMonth: 50,
+  rateLimitPerMinute: 5,
+};
+
+// Local API proxy URL (internal)
+export const LOCAL_API_URL = "/api/player";
+
 export const PLANS: PlanConfig[] = [
   {
     name: "Free",
@@ -39,11 +48,11 @@ export const PLANS: PlanConfig[] = [
     requestsPerMonth: "50",
     rateLimit: "5/min",
     features: [
-      "50 requests/month",
+      "50 requests/month (automatic)",
       "5 req/min rate limit",
+      "No signup required",
+      "Instant access",
       "Basic player data",
-      "Community support",
-      "API key instant access",
     ],
     buttonText: "Get Free Key",
     buttonVariant: "outline",

@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { PLANS } from "@/lib/constants";
-import { Check, Flame, Loader2 } from "lucide-react";
+import { Check, Flame, Loader2, Zap } from "lucide-react";
 
 export default function PricingPage() {
   const [email, setEmail] = useState("");
@@ -57,7 +57,7 @@ export default function PricingPage() {
           Simple, Transparent Pricing
         </h1>
         <p className="mt-4 text-muted-foreground">
-          Start free with 50 requests/month. Upgrade when you need more.
+          Start free with 50 requests/month — no signup needed. Upgrade when you need more.
         </p>
       </div>
 
@@ -76,6 +76,13 @@ export default function PricingPage() {
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                 <Badge className="bg-orange-500 text-white">
                   <Flame className="mr-1 h-3 w-3" /> Most Popular
+                </Badge>
+              </div>
+            )}
+            {plan.name === "Free" && !plan.popular && (
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <Badge className="bg-green-500 text-white">
+                  <Zap className="mr-1 h-3 w-3" /> No Signup Needed
                 </Badge>
               </div>
             )}
@@ -211,8 +218,12 @@ export default function PricingPage() {
               a: "You will receive a 429 error with a message indicating your monthly request limit has been exceeded. You can upgrade your plan or wait for the next billing cycle.",
             },
             {
+              q: "How does the free tier work without signup?",
+              a: "The free tier works automatically — just visit the Lab page and start testing. You get 50 free requests per month without creating an account or providing any personal information.",
+            },
+            {
               q: "Can I use the API in my mobile app?",
-              a: "Yes! The API is platform-agnostic. You can use it in web apps, mobile apps, servers, or any environment that supports HTTP requests.",
+              a: "Yes! The API is platform-agnostic. You can use it in web apps, mobile apps, servers, or any environment that supports HTTP requests. For non-browser usage, get a free API key from this page.",
             },
             {
               q: "How fast is the API?",

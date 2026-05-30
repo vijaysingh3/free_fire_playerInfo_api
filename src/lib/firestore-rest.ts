@@ -163,6 +163,112 @@ export async function queryDocuments(
   }
 }
 
+// Get a document from Firestore (returns full document data or null)
+export async function getDocument(
+  collection: string,
+  docId: string
+): Promise<Record<string, unknown> | null> {
+  try {
+    const token = await getAccessToken();
+    const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/${collection}/${docId}`;
+
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (res.status === 404) return null;
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error("Firestore get error:", errText);
+      return null;
+    }
+
+    const data = await res.json();
+    if (!data.fields) return null;
+
+    // Convert Firestore fields back to plain JS object
+    const result: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(data.fields)) {
+      result[key] = fromFirestoreValue(value as Record<string, unknown>);
+    }
+    return result;
+  } catch (error) {
+    console.error("Firestore get error:", error);
+    return null;
+  }
+}
+
+// Update specific fields in a Firestore document (using PATCH with fieldMask)
+export async function updateDocument(
+  collection: string,
+  docId: string,
+  data: Record<string, unknown>,
+  fieldMask?: string[]
+): Promise<boolean> {
+  try {
+    const token = await getAccessToken();
+    let url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/${collection}/${docId}`;
+
+    // Add fieldMask query params for partial updates
+    if (fieldMask && fieldMask.length > 0) {
+      const params = fieldMask.map((f) => `updateMask.fieldPaths=${encodeURIComponent(f)}`).join("&");
+      url += `?${params}`;
+    }
+
+    const fields: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(data)) {
+      fields[key] = toFirestoreValue(value);
+    }
+
+    const res = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ fields }),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error("Firestore update error:", errText);
+    }
+
+    return res.ok;
+  } catch (error) {
+    console.error("Firestore update error:", error);
+    return false;
+  }
+}
+
+// Convert Firestore value back to plain JS value
+function fromFirestoreValue(value: Record<string, unknown>): unknown {
+  if ("nullValue" in value) return null;
+  if ("stringValue" in value) return value.stringValue;
+  if ("integerValue" in value) return Number(value.integerValue);
+  if ("doubleValue" in value) return value.doubleValue;
+  if ("booleanValue" in value) return value.booleanValue;
+  if ("timestampValue" in value) return value.timestampValue;
+  if ("arrayValue" in value) {
+    const arr = (value.arrayValue as Record<string, unknown>).values;
+    if (!arr || !Array.isArray(arr)) return [];
+    return arr.map((v: unknown) => fromFirestoreValue(v as Record<string, unknown>));
+  }
+  if ("mapValue" in value) {
+    const fields = (value.mapValue as Record<string, unknown>).fields as Record<string, unknown>;
+    if (!fields) return {};
+    const result: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(fields)) {
+      result[k] = fromFirestoreValue(v as Record<string, unknown>);
+    }
+    return result;
+  }
+  return null;
+}
+
 // Convert JS value to Firestore value format
 function toFirestoreValue(value: unknown): Record<string, unknown> {
   if (value === null || value === undefined) {
