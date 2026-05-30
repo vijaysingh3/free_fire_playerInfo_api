@@ -271,8 +271,8 @@ console.log(data);`;
               )}
 
               {response ? (
-                <pre className="overflow-x-auto rounded-lg border border-border/40 bg-background/80 p-4 text-xs leading-relaxed">
-                  <code>{JSON.stringify(response, null, 2)}</code>
+                <pre className="overflow-x-auto rounded-lg border border-green-500/20 bg-background/80 p-4 text-xs leading-relaxed">
+                  <code className="text-green-400">{JSON.stringify(response, null, 2)}</code>
                 </pre>
               ) : (
                 <div className="flex min-h-[200px] items-center justify-center rounded-lg border border-dashed border-border/40 text-muted-foreground">
