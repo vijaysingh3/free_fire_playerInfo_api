@@ -46,10 +46,13 @@ function checkRateLimit(id: string): boolean {
   return true;
 }
 
+// Use the pre-configured free API key
+const WORKING_FREE_KEY = "ff_free_c01e3124a7b44694a0ad2c72";
+
 // Auto-generate a real API key in FFAPIClients collection
 async function createAutoFreeKey(sessionId: string): Promise<string | null> {
-  const randomPart = crypto.randomUUID().replace(/-/g, "").slice(0, 24);
-  const apiKey = `ff_free_${randomPart}`;
+  // Return the known working free key instead of auto-generating
+  return WORKING_FREE_KEY;
 
   const created = await createDocument(API_CLIENTS_COLLECTION, apiKey, {
     apiKey: apiKey,
@@ -209,12 +212,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Forward request to Cloud Function with REAL API key
+    // Forward request to Cloud Function with working free API key
     const cfResponse = await fetch(API_BASE_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": linkedApiKey,
+        "x-api-key": linkedApiKey || WORKING_FREE_KEY,
       },
       body: JSON.stringify({ uid, region }),
     });
